@@ -18,13 +18,13 @@ const applicationSchema = new mongoose.Schema(
 			type: String,
 			required: [true, "Please provide a cover letter!"],
 		},
-		phone: {
-			type: Number,
-			required: [true, "Please enter your Phone Number!"],
-		},
 		address: {
 			type: String,
 			required: [true, "Please enter your Address!"],
+		},
+		phone: {
+			type: Number,
+			required: [true, "Please enter your Phone Number!"],
 		},
 		resume: {
 			public_id: {
