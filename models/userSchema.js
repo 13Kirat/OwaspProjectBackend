@@ -28,12 +28,40 @@ const userSchema = new mongoose.Schema({
 	role: {
 		type: String,
 		required: [true, "Please select a role"],
-		enum: ["Job Seeker", "Employer"],
+		enum: ["Job Seeker", "Employer", "Organizer", "Admin"],
 	},
 	createdAt: {
 		type: Date,
 		default: Date.now,
 	},
+	year: {
+		type: String,
+		required: true,
+	},
+	branch: {
+		type: String,
+		required: true,
+	},
+	collage: {
+		type: String,
+		required: true,
+	},
+	profileImage: {
+		public_id: {
+			type: String,
+			required: true,
+		},
+		url: {
+			type: String,
+			required: true,
+		},
+	},
+	events: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Order",
+		},
+	],
 });
 
 //ENCRYPTING THE PASSWORD WHEN THE USER REGISTERS OR MODIFIES HIS PASSWORD

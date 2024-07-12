@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser"; // used to set cookies and authenticat
 import cors from "cors"; // used too connect frontend and backend
 import { dbConnection } from "./database/dbConnection.js";
 import { errorMiddleware } from "./middlewares/error.js";
+import eventRouter from "./routes/eventRoutes.js";
 import express from "express";
 import fileUpload from "express-fileupload";
 import jobRouter from "./routes/jobRoutes.js";
@@ -35,6 +36,7 @@ app.use(
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/application", applicationRouter);
+app.use("/api/v1/event", eventRouter);
 dbConnection();
 
 app.use(errorMiddleware);
