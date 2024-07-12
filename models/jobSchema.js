@@ -60,7 +60,7 @@ const jobSchema = new mongoose.Schema(
 			required: true,
 		},
 	},
-	{ bufferCommands: false }
+	{ bufferTimeoutMS: 10000 }
 );
 
 export const Job = mongoose.model("Job", jobSchema);

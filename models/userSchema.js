@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
 			},
 		],
 	},
-	{ bufferCommands: false }
+	{ bufferTimeoutMS: 10000 }
 );
 
 //ENCRYPTING THE PASSWORD WHEN THE USER REGISTERS OR MODIFIES HIS PASSWORD

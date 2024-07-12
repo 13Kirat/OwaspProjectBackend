@@ -63,7 +63,7 @@ const eventSchema = new  mongoose.Schema(
 			},
 		},
 	},
-	{ bufferCommands: false }
+	{ bufferTimeoutMS: 10000 }
 );
 
 export const Event = mongoose.model("Event", eventSchema);

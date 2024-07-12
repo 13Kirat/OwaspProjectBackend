@@ -61,7 +61,7 @@ const applicationSchema = new mongoose.Schema(
 			},
 		},
 	},
-	{ bufferCommands: false }
+  { bufferTimeoutMS: 10000 }
 );
 
 export const Application = mongoose.model("Application", applicationSchema);
