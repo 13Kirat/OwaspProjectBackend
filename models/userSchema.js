@@ -104,7 +104,7 @@ const userSchema = new mongoose.Schema({
 		minLength: [8, "Secret Code must contain at least 8 characters!"],
 		maxLength: [32, "Secret Code cannot exceed 32 characters!"],
 		select: false,
-		default: 0,
+		default: 123456789,
 	},
 
 	// only for students
