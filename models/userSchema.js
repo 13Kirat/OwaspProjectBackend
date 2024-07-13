@@ -2,70 +2,138 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import validator from "validator";
-const userSchema = new mongoose.Schema(
-	{
-		name: {
-			type: String,
-			required: [true, "Please enter your Name!"],
-			minLength: [3, "Name must contain at least 3 Characters!"],
-			maxLength: [30, "Name cannot exceed 30 Characters!"],
-		},
-		email: {
-			type: String,
-			required: [true, "Please enter your Email!"],
-			validate: [validator.isEmail, "Please provide a valid Email!"],
-		},
-		phone: {
-			type: Number,
-			required: [true, "Please enter your Phone Number!"],
-		},
-		password: {
-			type: String,
-			required: [true, "Please provide a Password!"],
-			minLength: [8, "Password must contain at least 8 characters!"],
-			maxLength: [32, "Password cannot exceed 32 characters!"],
-			select: false,
-		},
-		role: {
-			type: String,
-			required: [true, "Please select a role"],
-			enum: ["Job Seeker", "Employer", "Organizer", "Admin"],
-		},
-		createdAt: {
-			type: Date,
-			default: Date.now,
-		},
-		year: {
-			type: String,
-			required: true,
-		},
-		branch: {
-			type: String,
-			required: true,
-		},
-		collage: {
-			type: String,
-			required: true,
-		},
-		profileImage: {
-			public_id: {
-				type: String,
-				required: true,
-			},
-			url: {
-				type: String,
-				required: true,
-			},
-		},
-		events: [
-			{
-				type: mongoose.Schema.Types.ObjectId,
-				ref: "Order",
-			},
-		],
+const userSchema = new mongoose.Schema({
+	role: {
+		type: String,
+		required: [true, "Please select a role"],
+		enum: ["Student", "Employer", "Organizer", "Admin"],
 	},
-	{ bufferTimeoutMS: 10000 }
-);
+	name: {
+		type: String,
+		required: [true, "Please enter your Name!"],
+		minLength: [3, "Name must contain at least 3 Characters!"],
+		maxLength: [30, "Name cannot exceed 30 Characters!"],
+	},
+	email: {
+		type: String,
+		required: [true, "Please enter your Email!"],
+		validate: [validator.isEmail, "Please provide a valid Email!"],
+	},
+	phone: {
+		type: Number,
+		required: [true, "Please enter your Phone Number!"],
+	},
+	password: {
+		type: String,
+		required: [true, "Please provide a Password!"],
+		minLength: [8, "Password must contain at least 8 characters!"],
+		maxLength: [32, "Password cannot exceed 32 characters!"],
+		select: false,
+	},
+	// profileImage: {
+	// 	public_id: {
+	// 		type: String,
+	// 		required: true,
+	// 	},
+	// 	url: {
+	// 		type: String,
+	// 		required: true,
+	// 	},
+	// },
+	// for student
+	collage: {
+		type: String,
+		// required: true,
+	},
+	year: {
+		type: String,
+		// required: true,
+	},
+	branch: {
+		type: String,
+		// required: true,
+	},
+	rollNumber: {
+		type: Number,
+		// required: true,
+	},
+	// for employer
+	companyName: {
+		type: String,
+		// required: true,
+	},
+	companyAddress: {
+		type: String,
+		// required: true,
+	},
+	companyEmail: {
+		type: String,
+		// required: true,
+	},
+	companyPhone: {
+		type: Number,
+		// required: true,
+	},
+	companyWebsite: {
+		type: String,
+		// required: true,
+	},
+
+	// Organiser
+	organizationName: {
+		type: String,
+		// required: true,
+	},
+	organizationEmail: {
+		type: String,
+		// required: true,
+	},
+	organizationPhone: {
+		type: Number,
+		// required: true,
+	},
+	organizationWebsite: {
+		type: String,
+		// required: true,
+	},
+
+	// for admin
+	secretCode: {
+		type: String,
+		required: true,
+		minLength: [8, "Secret Code must contain at least 8 characters!"],
+		maxLength: [32, "Secret Code cannot exceed 32 characters!"],
+		select: false,
+		default: 0,
+	},
+
+	// only for students
+
+	events: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Order",
+		},
+	],
+
+	createdAt: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
+//ENCRYPTING THE PASSWORD WHEN THE USER REGISTERS OR MODIFIES HIS PASSWORD
+userSchema.pre("save", async function (next) {
+	if (!this.isModified("secretCode")) {
+		next();
+	}
+	this.secretCode = await bcrypt.hash(this.secretCode, 10);
+});
+
+//COMPARING THE USER Secret Code ENTERED BY USER WITH THE USER SAVED PASSWORD
+userSchema.methods.compareSecretCode = async function (enteredSecretCode = 0) {
+	return await bcrypt.compare(enteredSecretCode, this.secretCode);
+};
 
 //ENCRYPTING THE PASSWORD WHEN THE USER REGISTERS OR MODIFIES HIS PASSWORD
 userSchema.pre("save", async function (next) {

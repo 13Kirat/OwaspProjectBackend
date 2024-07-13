@@ -19,20 +19,23 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
 	}
 
 	const { resume } = req.files;
+	
 	const allowedFormats = [
 		"image/png",
 		"image/jpeg",
 		"image/jpg",
 		"image/webp",
 	];
+	
 	if (!allowedFormats.includes(resume.mimetype)) {
 		return next(
 			new ErrorHandler(
-				"Invalid file type. Please upload a PNG file.",
+				"Invalid file type. Please upload a PNG, JPEG, JPG, WEBP file.",
 				400
 			)
 		);
 	}
+	
 	const cloudinaryResponse = await cloudinary.uploader.upload(
 		resume.tempFilePath
 	);
@@ -46,18 +49,18 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
 			new ErrorHandler("Failed to upload Resume to Cloudinary", 500)
 		);
 	}
-  
-  const { name, email, coverLetter, phone, address, jobId } = req.body;
+
+	const { name, email, coverLetter, phone, address, jobId } = req.body;
 
 	const applicantID = {
 		user: req.user._id,
 		role: "Job Seeker",
 	};
-  
+
 	if (!jobId) {
 		return next(new ErrorHandler("Job not found!", 404));
 	}
-  
+
 	const jobDetails = await Job.findById(jobId);
 	if (!jobDetails) {
 		return next(new ErrorHandler("Job not found!", 404));
@@ -67,7 +70,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
 		user: jobDetails.postedBy,
 		role: "Employer",
 	};
-  
+
 	if (
 		!name ||
 		!email ||

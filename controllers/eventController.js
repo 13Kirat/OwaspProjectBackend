@@ -12,76 +12,97 @@ export const getAllEvents = catchAsyncErrors(async (req, res, next) => {
 
 export const postEvent = catchAsyncErrors(async (req, res, next) => {
 	const { role } = req.user;
-	if (role === "Job Seeker" || role === "Employer") {
+
+	console.log(req.body);
+
+	if (role === "Employer" || role === "Student") {
 		return next(
 			new ErrorHandler(
-				"Job Seeker and Employer not allowed to access this resource.",
+				"Job Seeker and Employer not allowed to access this resource." +
+					role,
 				400
 			)
 		);
 	}
 
-	if (!req.files || Object.keys(req.files).length === 0) {
-		return next(new ErrorHandler("Image of Event is Required!", 400));
-	}
+	// if (!req.files || Object.keys(req.files).length === 0) {
+	// 	return next(new ErrorHandler("Image of Event is Required!", 400));
+	// }
 
-	const { image } = req.files;
+	// const { image } = req.files;
 
-	const allowedFormats = [
-		"image/png",
-		"image/jpeg",
-		"image/jpg",
-		"image/webp",
-	];
+	// const allowedFormats = [
+	// 	"image/png",
+	// 	"image/jpeg",
+	// 	"image/jpg",
+	// 	"image/webp",
+	// ];
 
-	if (!allowedFormats.includes(resume.mimetype)) {
-		return next(
-			new ErrorHandler(
-				"Invalid file type. Please upload a PNG file.",
-				400
-			)
-		);
-	}
+	// if (!allowedFormats.includes(resume.mimetype)) {
+	// 	return next(
+	// 		new ErrorHandler(
+	// 			"Invalid file type. Please upload a PNG file.",
+	// 			400
+	// 		)
+	// 	);
+	// }
 
-	const cloudinaryResponse = await cloudinary.uploader.upload(
-		image.tempFilePath
-	);
+	// const cloudinaryResponse = await cloudinary.uploader.upload(
+	// 	image.tempFilePath
+	// );
 
-	if (!cloudinaryResponse || cloudinaryResponse.error) {
-		console.error(
-			"Cloudinary Error: ",
-			cloudinaryResponse.error || "Unknown Cloudinary error"
-		);
-		return next(
-			new ErrorHandler("Failed to upload Event Image to Cloudinary", 500)
-		);
-	}
+	// if (!cloudinaryResponse || cloudinaryResponse.error) {
+	// 	console.error(
+	// 		"Cloudinary Error: ",
+	// 		cloudinaryResponse.error || "Unknown Cloudinary error"
+	// 	);
+	// 	return next(
+	// 		new ErrorHandler("Failed to upload Event Image to Cloudinary", 500)
+	// 	);
+	// }
 
 	const {
 		title,
-		description,
 		category,
-		onDate,
-		fromDate,
-		toDate,
 		modeOf,
 		location,
 		pricePool,
+		prize,
+		eventDate,
+		onDate,
+		fromDate,
+		toDate,
+		description,
 	} = req.body;
 
-	if (!title || !description || !category || !modeOf || !location || !image) {
+	if (
+		!title ||
+		!category ||
+		!modeOf ||
+		!location ||
+		!prize ||
+		!eventDate ||
+		!description
+	) {
 		return next(
 			new ErrorHandler("Please provide full event details.", 400)
 		);
 	}
 
-	if (!onDate && (!fromDate || !toDate)) {
-		return next(
-			new ErrorHandler(
-				"Please either provide event Date or ranged Dates.",
-				400
-			)
-		);
+	if (eventDate === "Fixed Date") {
+		if (!onDate) {
+			return next(
+				new ErrorHandler("Enter Fixed Date of the Event.", 400)
+			);
+		}
+	}
+
+	if (eventDate === "Ranged Date") {
+		if (!fromDate && !toDate) {
+			return next(
+				new ErrorHandler("Enter Ranged Dates of the Event.", 400)
+			);
+		}
 	}
 
 	if (onDate && fromDate && toDate) {
@@ -93,23 +114,33 @@ export const postEvent = catchAsyncErrors(async (req, res, next) => {
 		);
 	}
 
+	if (category === "Hcakthon") {
+		if (!pricePool) {
+			return next(
+				new ErrorHandler("Please provide the Prize Pool Value.", 400)
+			);
+		}
+	}
+
 	const postedBy = req.user._id;
 
 	const event = await Event.create({
 		title,
-		description,
 		category,
-		onDate,
-		fromDate,
-		toDate,
 		modeOf,
 		location,
 		pricePool,
+		prize,
+		eventDate,
+		onDate,
+		fromDate,
+		toDate,
+		description,
 		postedBy,
-		image: {
-			public_id: cloudinaryResponse.public_id,
-			url: cloudinaryResponse.secure_url,
-		},
+		// image: {
+		// 	public_id: cloudinaryResponse.public_id,
+		// 	url: cloudinaryResponse.secure_url,
+		// },
 	});
 
 	res.status(200).json({

@@ -4,21 +4,104 @@ import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
 import { sendToken } from "../utils/jwtToken.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
-	const { name, email, phone, password, role } = req.body;
-	if (!name || !email || !phone || !password || !role) {
-		return next(new ErrorHandler("Please fill full form!"));
-	}
-	const isEmail = await User.findOne({ email });
-	if (isEmail) {
-		return next(new ErrorHandler("Email already registered!"));
-	}
-	const user = await User.create({
+	console.log(req.body);
+	// console.log(req.files);
+	const {
+		role,
 		name,
 		email,
 		phone,
 		password,
-		role,
-	});
+		collage,
+		year,
+		branch,
+		rollNumber,
+		companyName,
+		companyEmail,
+		companyPhone,
+		companyWebsite,
+		organizationName,
+		organizationEmail,
+		organizationPhone,
+		organizationWebsite,
+		secretCode,
+	} = req.body;
+
+	if (!role || !name || !email || !phone || !password) {
+		return next(new ErrorHandler("Please fill full form!"));
+	}
+
+	const isEmail = await User.findOne({ email });
+	const isPhone = await User.findOne({ phone });
+
+	if (isEmail || isPhone) {
+		return next(
+			new ErrorHandler("Email Or Phone Number is already registered!")
+		);
+	}
+
+	let user;
+
+	if (role === "Student") {
+		if (!collage || !year || !branch || !rollNumber) {
+			return next(new ErrorHandler("Please fill full form!"));
+		}
+		user = await User.create({
+			role,
+			name,
+			email,
+			phone,
+			password,
+			collage,
+			year,
+			branch,
+			rollNumber,
+		});
+	} else if (role === "Employer") {
+		if (!companyName || !companyEmail || !companyPhone || !companyWebsite) {
+			return next(new ErrorHandler("Please fill full form!"));
+		}
+		user = await User.create({
+			role,
+			name,
+			email,
+			phone,
+			password,
+
+			companyName,
+			companyEmail,
+			companyPhone,
+			companyWebsite,
+		});
+	} else if (role === "Organizer") {
+		if (!role || !name || !email || !phone || !password) {
+			return next(new ErrorHandler("Please fill full form!"));
+		}
+		user = await User.create({
+			role,
+			name,
+			email,
+			phone,
+			password,
+			organizationName,
+			organizationEmail,
+			organizationPhone,
+			organizationWebsite,
+		});
+	} else if (role === "Admin") {
+		if (!secretCode) {
+			return next(new ErrorHandler("Please fill full form!"));
+		}
+		user = await User.create({
+			role,
+			name,
+			email,
+			phone,
+			password,
+			secretCode,
+		});
+	}
+
 	sendToken(user, 201, res, "User Registered!");
 });
 

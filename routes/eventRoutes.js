@@ -15,8 +15,8 @@ const router = express.Router();
 router.get("/getall", getAllEvents);
 router.get("/getmyevents", isAuthenticated, getMyEvents);
 router.get("/:id", isAuthenticated, getSingleEvent);
+router.post("/post", isAuthenticated, postEvent);
 router.put("/update/:id", isAuthenticated, updateEvent);
 router.delete("/delete/:id", isAuthenticated, deleteEvent);
-router.post("/post", isAuthenticated, postEvent);
 
 export default router;
